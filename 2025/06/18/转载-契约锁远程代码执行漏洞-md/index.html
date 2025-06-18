@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="description" content="原文链接：  https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s?__biz&#x3D;MzI4MjkxNzY1NQ&#x3D;&#x3D;&amp;mid&#x3D;2247485905&amp;idx&#x3D;1&amp;sn&#x3D;bde9c0b7742a30ff31614872d63a3cbd 免责声明：本文仅供安全研究与学习之用，严禁用于非法用途，违者后果自负。 漏洞介绍契约锁是一个电子签章及印章管控平台，提供的电子文件具有与纸质文件一样">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[转载]契约锁远程代码执行漏洞.md">
+<meta property="og:url" content="http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/index.html">
+<meta property="og:site_name" content="0dayK1ng">
+<meta property="og:description" content="原文链接：  https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s?__biz&#x3D;MzI4MjkxNzY1NQ&#x3D;&#x3D;&amp;mid&#x3D;2247485905&amp;idx&#x3D;1&amp;sn&#x3D;bde9c0b7742a30ff31614872d63a3cbd 免责声明：本文仅供安全研究与学习之用，严禁用于非法用途，违者后果自负。 漏洞介绍契约锁是一个电子签章及印章管控平台，提供的电子文件具有与纸质文件一样">
+<meta property="og:locale">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzWicBJBcnP5xlyzicEdUu7FEsaPqhx4Jwx93gxr7YjDSvXHSfQwj6jG8w/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzQ1HU75o12sNBLNltpjq12YnmoceIhvZVDoPg05bibhiaTdEcGQY1dezw/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzJmyRX1AwHX5B0Ffxfltw6ykn5AeulqMJWAwKicMjx0TKicuWNuGdmkoQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4Gz3ibd6ibcDBfg0gqu2AkptvFgY3bwicJbXt1u3Iiavic4hUmKoHWPYInaoFQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzowyZBq38D8PTIdNxzibWS0VEqfJXpXNCRPBFav81Y5lfpMVvg1eibBTQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4Gz8B7fCUiafwciaz3JTp7BtNZFBUicSgXUtrmZiar7kj0KT8yjSMRRHgocVQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzoBRH4UVo5iaMXuRc2cC0OvcRNzEVYJFmdFbNNBiaLbQOvkDSib2s4LMXA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzVUggReeiaOmqa1o87YBiam4yxuKd9CBm5YuNnWUG2N6Yic8gG2o3b46lA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzZiaWiaXGEyf3cLdeeXRXNIcjbpkHRfUJia107ibTgVbIB7QUfTZgmp12uQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzZYRlTcxGWD78qAqdogTob8tOAUtAKX2LBnM7J3Lgbd58LRNd810SIA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzWzhxPl8phy9hf4Xbtf15Oj2SE2OTh6b4XWhefNZKImtwJo3EPS1WAA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzQVXfW4k5fpF0icYnjwO4EMCmByXt7SibDUwMDuCVWUyVN6lg3PHQmGOg/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+<meta property="og:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0knIjq7rj7rsX0r4Rf2CDQylx0IjMfpPM93icE9AGx28bqwDRau5EkcWpK6WBAG5zGDS41wkfcvJiaA/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1&tp=webp">
+<meta property="article:published_time" content="2025-06-18T02:04:17.000Z">
+<meta property="article:modified_time" content="2025-06-18T02:21:29.494Z">
+<meta property="article:author" content="0dayK1ng">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzWicBJBcnP5xlyzicEdUu7FEsaPqhx4Jwx93gxr7YjDSvXHSfQwj6jG8w/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>[转载]契约锁远程代码执行漏洞.md</title>
+    <!-- async scripts -->
+    <!-- Google Analytics -->
+
+
+    <!-- Umami Analytics -->
+
+
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fa-solid fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fa-solid fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">项目</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2025/06/17/%E5%88%9D%E6%9D%A5%E4%B9%8D%E5%88%B0/"><i class="fa-solid fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fa-solid fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&text=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&is_video=false&description=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[转载]契约锁远程代码执行漏洞.md&body=Check out this article: http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/"><i class="fa-solid fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&name=[转载]契约锁远程代码执行漏洞.md&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&t=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    
+    
+      <div id="toc">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">漏洞介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E5%A4%8D%E6%84%8F%E8%A7%81"><span class="toc-number">5.</span> <span class="toc-text">修复意见</span></a></li></ol>
+      </div>
+    
+  </span>
+</div>
+
+    
+    <div class="content index py4 ">
+        
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle p-name" itemprop="name headline">
+        [转载]契约锁远程代码执行漏洞.md
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author p-author h-card" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span class="p-name" itemprop="name">0dayK1ng</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2025-06-18T02:04:17.000Z" class="dt-published" itemprop="datePublished">2025-06-18</time>
+        
+      
+    </div>
+
+
+      
+
+      
+
+    </div>
+  </header>
+  
+
+  <div class="content e-content" itemprop="articleBody">
+    <p><strong>原文链接：</strong>  <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI4MjkxNzY1NQ==&mid=2247485905&idx=1&sn=bde9c0b7742a30ff31614872d63a3cbd">https://mp.weixin.qq.com/s?__biz=MzI4MjkxNzY1NQ==&amp;mid=2247485905&amp;idx=1&amp;sn=bde9c0b7742a30ff31614872d63a3cbd</a></p>
+<p><strong>免责声明：本文仅供安全研究与学习之用，严禁用于非法用途，违者后果自负。</strong></p>
+<h2 id="漏洞介绍"><a href="#漏洞介绍" class="headerlink" title="漏洞介绍"></a>漏洞介绍</h2><p>契约锁是一个电子签章及印章管控平台，提供的电子文件具有与纸质文件一样的法律效力。近日，契约锁发布安全补丁修复了远程代码执行漏洞。该漏洞允许未经过身份认证的攻击者可以利用该漏洞在契约锁管理端上执行任意代码，从而完全控制服务器。</p>
+<h2 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h2><pre><code>app=&quot;契约锁-电子签署平台&quot;&amp;&amp; port=&quot;9181&quot;
+</code></pre>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzWicBJBcnP5xlyzicEdUu7FEsaPqhx4Jwx93gxr7YjDSvXHSfQwj6jG8w/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p>POC:</p>
+<p>(这微信页面直接复制代码格式会乱，可以浏览器打开复制)</p>
+<pre><code>/setup/dbtest
+</code></pre>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzQ1HU75o12sNBLNltpjq12YnmoceIhvZVDoPg05bibhiaTdEcGQY1dezw/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzJmyRX1AwHX5B0Ffxfltw6ykn5AeulqMJWAwKicMjx0TKicuWNuGdmkoQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4Gz3ibd6ibcDBfg0gqu2AkptvFgY3bwicJbXt1u3Iiavic4hUmKoHWPYInaoFQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzowyZBq38D8PTIdNxzibWS0VEqfJXpXNCRPBFav81Y5lfpMVvg1eibBTQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>接口位置：</p>
+<pre><code>qiyuesuo\privoss.jar!\BOOT-INF\classes\com\qiyuesuo\setup\SetupController.class
+</code></pre>
+<p>参数为db、name、host、port、username、password</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4Gz8B7fCUiafwciaz3JTp7BtNZFBUicSgXUtrmZiar7kj0KT8yjSMRRHgocVQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p>跟进validateDatabase 方法 ，来到</p>
+<pre><code>privoss.jar!\BOOT-INF\classes\com\qiyuesuo\setup\SetupService.class
+</code></pre>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzoBRH4UVo5iaMXuRc2cC0OvcRNzEVYJFmdFbNNBiaLbQOvkDSib2s4LMXA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzVUggReeiaOmqa1o87YBiam4yxuKd9CBm5YuNnWUG2N6Yic8gG2o3b46lA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p>跟进</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzZiaWiaXGEyf3cLdeeXRXNIcjbpkHRfUJia107ibTgVbIB7QUfTZgmp12uQ/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzZYRlTcxGWD78qAqdogTob8tOAUtAKX2LBnM7J3Lgbd58LRNd810SIA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p>支持的jdbc</p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzWzhxPl8phy9hf4Xbtf15Oj2SE2OTh6b4XWhefNZKImtwJo3EPS1WAA/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<p>漏洞利用的是PostgreSQL JDBC Driver RCE（CVE-2022-21724）</p>
+<pre><code>&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+</code></pre>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0kBgEvNRkKueFEG1lmYI4GzQVXfW4k5fpF0icYnjwO4EMCmByXt7SibDUwMDuCVWUyVN6lg3PHQmGOg/640?wx_fmt=png&from=appmsg&watermark=1&tp=webp&wxfrom=5&wx_lazy=1" alt="图片"></p>
+<h2 id="修复意见"><a href="#修复意见" class="headerlink" title="修复意见"></a>修复意见</h2><hr>
+<p>官方已更新补丁，及时更新最新版本：<a target="_blank" rel="noopener" href="https://www.qiyuesuo.com/more/security/servicepack">https://www.qiyuesuo.com/more/security/servicepack</a></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/UM0M1icqlo0knIjq7rj7rsX0r4Rf2CDQylx0IjMfpPM93icE9AGx28bqwDRau5EkcWpK6WBAG5zGDS41wkfcvJiaA/640?wx_fmt=other&wxfrom=5&wx_lazy=1&wx_co=1&tp=webp" alt="图片"></p>
+<p>声明：技术文章均收集于互联网，仅作为本人学习、记录使用。侵权删！！！</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+        
+          <li><a href="/">首页</a></li>
+        
+          <li><a href="/about/">关于</a></li>
+        
+          <li><a href="/archives/">归档</a></li>
+        
+          <li><a target="_blank" rel="noopener" href="http://github.com/probberechts">项目</a></li>
+        
+      </ul>
+    </div>
+
+    
+    
+      <div id="toc-footer" style="display: none">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">漏洞介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">语法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E5%A4%8D%E6%84%8F%E8%A7%81"><span class="toc-number">5.</span> <span class="toc-text">修复意见</span></a></li></ol>
+      </div>
+    
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&text=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&is_video=false&description=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=[转载]契约锁远程代码执行漏洞.md&body=Check out this article: http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/"><i class="fa-solid fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&title=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&name=[转载]契约锁远程代码执行漏洞.md&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2025/06/18/%E8%BD%AC%E8%BD%BD-%E5%A5%91%E7%BA%A6%E9%94%81%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-md/&t=[转载]契约锁远程代码执行漏洞.md"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fa-solid fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        
+          <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fa-solid fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fa-solid fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fa-solid fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2025
+    0dayK1ng
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a target="_blank" rel="noopener" href="http://github.com/probberechts">项目</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script>
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script>
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="fa-regular fa-clone"></i>';
+    btn += '</span>';
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
